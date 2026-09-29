@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CETIN: Track 1 Progress Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root{
+  --deep:#460073; --mid:#7500C0; --bright:#A100FF; --tint:#E6DCFF; --tintsoft:#F3ECFF;
+  --ink:#1A1130; --grey:#6A6478; --line:#E4E0EC;
+  --ok:#1E8E3E; --okbg:#E3F4E8; --amber:#C77D00; --amberbg:#FBEFD9; --red:#C0143C; --redbg:#FBE3E8;
+  --left-w:300px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Segoe UI',Arial,sans-serif;background:#F4F2F8;color:var(--ink);font-size:12px;padding:18px 24px 50px;-webkit-font-smoothing:antialiased}
+.autosave-footer{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:9px 24px;z-index:50;box-shadow:0 -2px 10px rgba(20,10,40,.06)}
+.autosave-footer .tb-status{flex:none}
+
+/* Header with Accenture wordmark */
+.brandbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.wordmark{font-family:'Inter',sans-serif;font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-0.3px;display:flex;align-items:baseline;gap:1px}
+.wordmark .gt{color:var(--bright);font-weight:800;font-size:20px;margin-left:1px}
+
+.hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--mid);gap:14px;flex-wrap:wrap}
+.hdr h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-0.3px}
+.hdr h1 .accent{color:var(--mid)}
+.hdr p{font-size:10px;color:var(--grey);margin-top:4px;letter-spacing:0.2px}
+.hdr-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.dpill{background:var(--mid);color:#fff;font-size:10px;font-weight:600;padding:7px 16px;border-radius:2px;white-space:nowrap;letter-spacing:0.3px}
+
+.tabbar{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.4px;color:var(--grey);background:none;border:none;border-bottom:2px solid transparent;padding:8px 16px;cursor:pointer;margin-bottom:-1px}
+.tab:hover{color:var(--mid)}
+.tab.active{color:var(--mid);border-bottom-color:var(--mid)}
+.tabbar.level2{margin:-6px 0 16px;border-bottom:1px solid var(--line)}
+.tabbar.level2 .tab{font-size:10px;padding:7px 13px;color:var(--grey)}
+.gantt-hint{font-size:9.5px;color:var(--grey);margin-bottom:8px;font-style:italic}
+
+.toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:14px;padding:8px 13px;background:var(--tintsoft);border:1px solid var(--line);border-radius:3px}
+.tb-btn{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:11px;font-weight:700;color:var(--mid);background:#fff;border:1.5px solid var(--mid);padding:7px 13px;border-radius:2px;cursor:pointer;transition:all .12s;white-space:nowrap}
+.tb-btn:hover{background:var(--mid);color:#fff}
+.tb-primary{background:var(--mid);color:#fff}
+.tb-primary:hover{background:var(--deep)}
+.tb-danger{color:var(--red);border-color:var(--red)}
+.tb-danger:hover{background:var(--red);color:#fff}
+.tb-sep{width:1px;height:22px;background:var(--line)}
+.tb-status{font-size:10px;color:var(--grey);font-weight:500;flex:1;min-width:160px}
+.tb-status.ok{color:#14672C;font-weight:700}
+.tb-status.err{color:#8A0E2A;font-weight:700}
+.mini-bullets{margin:2px 0 0;padding-left:15px;list-style:disc}
+.mini-bullets li{margin:0 0 3px;line-height:1.4}
+
+.tiles{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-bottom:16px}
+.tile{position:relative;background:#fff;border-radius:2px;padding:11px 13px;border:1px solid var(--line);border-top:3px solid var(--mid)}
+.tile .n{font-size:22px;font-weight:800;line-height:1;color:var(--mid);letter-spacing:-0.5px}
+.tile .l{font-size:9px;color:var(--grey);margin-top:5px;font-weight:500;letter-spacing:0.2px}
+.t1{border-top-color:var(--deep)}.t1 .n{color:var(--deep)}
+.t2{border-top-color:var(--bright)}.t2 .n{color:var(--bright)}
+.t3{border-top-color:var(--mid)}.t3 .n{color:var(--mid)}
+.t4{border-top-color:var(--red)}.t4 .n{color:var(--red)}
+.t5{border-top-color:var(--grey)}.t5 .n{color:var(--ink);font-size:15px;padding-top:3px}
+
+.sec{font-size:10px;font-weight:700;color:var(--mid);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:10px}
+.sec::after{content:'';flex:1;height:1px;background:var(--line)}
+
+.plan-leg{display:flex;gap:16px;flex-wrap:wrap;font-size:9px;color:var(--grey);margin-bottom:10px;align-items:center;font-weight:500}
+.pl{display:flex;align-items:center;gap:5px}
+.pl-dot{width:9px;height:9px;border-radius:50%}
+.pl-ok{background:var(--ok)}.pl-risk{background:var(--amber)}.pl-behind{background:var(--red)}.pl-prog{background:#2563C9}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:16px}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:2px;border-left:3px solid var(--mid);padding:11px 13px;display:flex;flex-direction:column;gap:6px}
+
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
+.card-name{font-size:12px;font-weight:700;color:var(--ink);line-height:1.3;flex:1;min-width:0;word-wrap:break-word}
+.card-desc{font-size:10px;color:var(--grey);font-style:italic;line-height:1.4;margin:4px 0 2px;min-height:12px}
+.card-desc:empty::before{content:attr(data-placeholder);color:#C9C4D4}
+.badges{display:flex;gap:3px;flex-shrink:0;align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:120px}
+.uid{font-size:10px;font-weight:700;color:var(--mid);background:var(--tintsoft);padding:2px 6px;border-radius:2px}
+.pill{font-size:9px;font-weight:700;padding:1px 6px;border-radius:2px;white-space:nowrap}
+.pill-b{background:var(--tint);color:var(--deep)}
+.scen{font-size:9px;font-weight:600;color:var(--grey);background:#F2F0F6;padding:2px 5px;border-radius:2px;min-height:11px}
+.scen:empty{padding:0;background:transparent;min-width:0;min-height:0}
+.card .badges .pill{display:none}
+
+.stage-track{display:flex;justify-content:space-between;gap:2px;margin:4px 0 1px;width:100%}
+.stage{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;min-width:0}
+.dot{width:14px;height:14px;border-radius:50%;border:1.5px solid #CFC9DA;background:#EFEDF4;cursor:pointer;transition:background .12s}
+.dot.g{background:var(--ok);border-color:var(--ok)}
+.dot.a{background:var(--amber);border-color:var(--amber)}
+.dot.r{background:var(--red);border-color:var(--red)}
+.st-lbl{font-size:7.2px;color:var(--grey);font-weight:700;text-transform:uppercase;letter-spacing:.2px;line-height:1.05;text-align:center;white-space:normal}
+.st-lbl-prod{line-height:1.05;display:block}
+
+.st-date{font-size:8px;color:var(--grey);line-height:1.1;text-align:center;min-height:8px}
+.st-date:empty::before{content:'\2013\2013';color:#C9C4D4}
+
+.cstat{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap}
+.stat-ok{background:#E1F3E7;color:#14672C}
+.stat-behind{background:#FCEFD2;color:#8A5A00}
+.stat-off{background:#FBE3E8;color:#8A0E2A}
+
+.divider{height:1px;background:#F0EEF4}
+
+.field-label{font-size:8px;font-weight:700;color:var(--grey);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px}
+.prog-txt{font-size:10px;line-height:1.4}
+.bloc-txt{font-size:10px;color:var(--red);line-height:1.4}
+.none-txt{font-size:10px;color:#9A93A8}
+
+[contenteditable="true"]:hover{background:var(--tintsoft);outline:1px dashed #C8B8E8;border-radius:2px;cursor:text}
+[contenteditable="true"]:focus{background:#fff;outline:2px solid var(--mid);border-radius:2px}
+.uid[contenteditable="true"]:hover,.scen[contenteditable="true"]:hover{outline:1px dashed var(--mid)}
+.uid[contenteditable="true"]:hover{background:var(--tintsoft)}
+.scen[contenteditable="true"]:hover{background:#F2F0F6}
+.dpill [contenteditable="true"]:hover{background:var(--mid);outline:1px dashed #C8B8E8;color:#fff}
+.dpill [contenteditable="true"]:focus{background:var(--deep);outline:2px solid #fff;color:#fff}
+
+.footer-rule{height:3px;background:linear-gradient(90deg,var(--deep),var(--mid),var(--bright));border:none;margin-top:6px;border-radius:2px}
+
+/* ===== Use-case detail tabs ===== */
+.uc-page-head{display:flex;align-items:center;gap:12px;padding-bottom:12px;margin-bottom:16px;border-bottom:2px solid var(--mid);flex-wrap:wrap}
+.uc-page-title{font-size:15px;font-weight:700;color:var(--ink)}
+
+.panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:2px;padding:12px 14px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid #F0EEF4}
+.panel-label{font-size:10px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.8px}
+.panel-edit-btn{font-family:inherit;font-size:9.5px;font-weight:700;color:var(--mid);background:#fff;border:1.3px solid var(--mid);padding:4px 10px;border-radius:2px;cursor:pointer;white-space:nowrap}
+.panel-edit-btn:hover{background:var(--mid);color:#fff}
+.edit-box{min-height:150px;font-size:10.5px;line-height:1.65;color:#3A3348}
+.edit-box:empty::before{content:attr(data-placeholder);color:#C9C4D4;font-style:italic}
+
+.risk-table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:10px;background:#fff;border:1px solid var(--line)}
+.risk-table th{background:var(--tintsoft);color:var(--mid);font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;text-align:left;padding:7px 9px;border-bottom:1px solid var(--line)}
+.risk-table td{padding:6px 9px;border-bottom:1px solid #F0EEF4;vertical-align:top;font-size:9.5px;color:#3A3348}
+.risk-table tbody tr:last-child td{border-bottom:none}
+.risk-table td[contenteditable]:hover{background:var(--tintsoft);cursor:text}
+.risk-table td[data-ph]:empty::before{content:attr(data-ph);color:#C9C4D4;font-style:italic}
+.rk-sno{width:28px;text-align:center;color:var(--grey);font-weight:700}
+.rk-desc{min-width:200px}
+.rk-io-cell{cursor:pointer}
+.rk-io-cell:hover{background:var(--tintsoft)}
+.risk-tag{display:inline-block;font-size:8.5px;font-weight:800;padding:3px 9px;border-radius:2px;cursor:pointer;letter-spacing:.3px;pointer-events:none}
+.bt-int{background:#FBE3E8;color:#8A0E2A}
+.bt-ext{background:#FFF4DC;color:#8A5A00}
+.rk-actions{white-space:nowrap}
+.rk-push{font-family:inherit;font-size:8px;font-weight:700;color:var(--mid);background:#fff;border:1.2px solid var(--mid);padding:3px 7px;border-radius:2px;cursor:pointer;margin-right:4px}
+.rk-push:hover{background:var(--mid);color:#fff}
+.rk-push.pushed{color:#14672C;border-color:#14672C}
+.rk-push.pushed:hover{background:#14672C;color:#fff}
+.rk-del{background:none;border:none;color:var(--grey);font-size:15px;cursor:pointer;line-height:1;padding:2px 6px;border-radius:2px}
+.rk-del:hover{background:var(--redbg);color:var(--red)}
+.rk-empty td{text-align:center;color:var(--grey);font-style:italic;padding:14px}
+
+/* ===== Reusable Gantt (High-Level Plan) instance ===== */
+.gantt-instance{margin-bottom:6px}
+.uc-subpage .gantt-title-row{display:none}
+.gantt-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px}
+.g-plan-title{font-size:13px;font-weight:700;color:var(--ink);outline:none}
+.g-plan-title:hover{background:var(--tintsoft);outline:1px dashed #C8B8E8;border-radius:2px;cursor:text}
+.g-plan-title:focus{background:#fff;outline:2px solid var(--mid);border-radius:2px}
+.gantt-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;padding:8px 11px;background:#fff;border:1px solid var(--line);border-radius:3px;font-size:10.5px}
+.gantt-toolbar .tb-mini{font-size:10px;padding:5px 10px}
+.gantt-inline-label{display:flex;align-items:center;gap:5px;font-weight:600;color:var(--grey)}
+.gantt-inline-label input[type="date"],.gantt-inline-label select{font-family:inherit;font-size:10px;font-weight:600;color:var(--ink);background:#fff;border:1.2px solid var(--line);border-radius:2px;padding:4px 6px}
+.legend-mini{display:flex;gap:10px;flex-wrap:wrap;font-size:8.5px;color:var(--grey);margin-left:auto;align-items:center}
+.legend-mini span{display:flex;align-items:center;gap:4px}
+.leg-swatch{width:10px;height:10px;border-radius:2px;display:inline-block}
+.leg-flag{width:8px;height:8px;transform:rotate(45deg);display:inline-block}
+
+.gantt-scroll-wrap{position:relative;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.gantt-row{display:flex;border-bottom:1px solid var(--line)}
+.gantt-row:last-child{border-bottom:none}
+.gantt-row.header{background:var(--tintsoft);border-bottom:2px solid var(--mid)}
+.row-left{width:var(--left-w);flex-shrink:0;padding:8px 10px;border-right:2px solid var(--line);display:flex;flex-direction:column;gap:5px}
+.row-right{flex:1;position:relative;min-width:0}
+.gantt-row.header .row-left{display:flex;align-items:center;font-size:9.5px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.6px}
+.gantt-header-right{position:relative;height:34px}
+.gridcol{position:absolute;top:0;bottom:0;border-right:1px solid var(--line)}
+.gridcol.head{display:flex;align-items:center;justify-content:center;text-align:center}
+.col-label{font-size:8px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.3px;line-height:1.25;padding:2px;outline:none;text-align:center}
+.col-label:hover{background:#fff;outline:1px dashed #C8B8E8;cursor:text;border-radius:2px}
+.col-sub{display:block;font-weight:500;color:var(--grey);text-transform:none;font-size:7.5px}
+
+.gantt-row.activity{min-height:36px}
+.gantt-row.activity.editing{min-height:112px}
+.act-top{display:flex;align-items:center;gap:4px;height:100%}
+.gantt-row.activity.editing .act-top{height:auto}
+.act-name-label{flex:1;min-width:0;font-size:10.5px;font-weight:700;color:var(--ink);padding:2px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gantt-row.activity.editing .act-name-label{display:none}
+.act-name{display:none;flex:1;min-width:0;font-family:inherit;font-size:10.5px;font-weight:700;color:var(--ink);border:none;background:transparent;padding:2px 4px;border-radius:2px;overflow:hidden;text-overflow:ellipsis}
+.gantt-row.activity.editing .act-name{display:block}
+.act-name:hover{background:var(--tintsoft)}
+.act-name:focus{background:#fff;outline:1.5px solid var(--mid)}
+.act-edit-toggle,.act-insert-btn{background:none;border:none;color:var(--grey);font-size:11px;cursor:pointer;line-height:1;padding:3px 5px;border-radius:2px;flex-shrink:0}
+.act-edit-toggle:hover,.act-insert-btn:hover{background:var(--tintsoft);color:var(--mid)}
+.act-del{background:none;border:none;color:var(--grey);font-size:14px;cursor:pointer;line-height:1;padding:2px 5px;border-radius:2px;flex-shrink:0}
+.act-del:hover{background:var(--redbg);color:var(--red)}
+.act-edit-area{display:none}
+.gantt-row.activity.editing .act-edit-area{display:flex;flex-direction:column;gap:5px;margin-top:5px}
+.act-dates{display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:8.5px;color:var(--grey);font-weight:600}
+.act-dates label{display:flex;align-items:center;gap:3px}
+.act-dates input[type="date"]{font-family:inherit;font-size:8.5px;font-weight:600;color:var(--ink);background:#F8F7FB;border:1px solid var(--line);border-radius:2px;padding:2px 3px;width:96px}
+.act-status-pill{font-size:7.5px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap;cursor:pointer}
+.marker-chips{display:flex;flex-wrap:wrap;gap:4px}
+.marker-chip{font-size:7.5px;font-weight:600;padding:2px 6px;border-radius:2px;display:inline-flex;align-items:center;gap:4px}
+.mk-delay{background:var(--amberbg);color:#8A5A00}
+.mk-blocker{background:var(--redbg);color:#8A0E2A}
+.mk-x{cursor:pointer;font-weight:800;opacity:.6}
+.mk-x:hover{opacity:1}
+.add-marker-btn{align-self:flex-start;font-family:inherit;font-size:8.5px;font-weight:700;color:var(--mid);background:#fff;border:1.2px solid var(--mid);padding:3px 8px;border-radius:2px;cursor:pointer}
+.add-marker-btn:hover{background:var(--mid);color:#fff}
+.marker-form{display:flex;gap:5px;flex-wrap:wrap;align-items:center;background:#F8F7FB;border:1px solid var(--line);border-radius:2px;padding:6px}
+.marker-form input[type="date"],.marker-form select,.marker-form input[type="text"]{font-family:inherit;font-size:8.5px;border:1px solid var(--line);border-radius:2px;padding:3px 5px}
+.marker-form input[type="text"]{flex:1;min-width:70px}
+.marker-form button{font-family:inherit;font-size:8.5px;font-weight:700;border-radius:2px;padding:3px 7px;cursor:pointer;border:1.2px solid var(--mid);background:#fff;color:var(--mid)}
+.marker-form button:hover{background:var(--mid);color:#fff}
+
+.gridlines{position:absolute;inset:0}
+.bar-layer{position:absolute;inset:0}
+.gantt-bar{position:absolute;top:50%;transform:translateY(-50%);height:18px;border-radius:4px;min-width:6px;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.gantt-bar.status-ok{background:var(--ok)}
+.gantt-bar.status-behind{background:var(--amber)}
+.gantt-bar.status-off{background:var(--red)}
+.milestone{position:absolute;top:50%;width:13px;height:13px;border-radius:3px;transform:translate(-50%,-50%) rotate(45deg);box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.milestone.status-ok{background:var(--ok)}
+.milestone.status-behind{background:var(--amber)}
+.milestone.status-off{background:var(--red)}
+.marker-flag{position:absolute;top:6px;width:9px;height:9px;transform:translateX(-50%) rotate(45deg);border:1.5px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.marker-flag.mk-delay{background:var(--amber)}
+.marker-flag.mk-blocker{background:var(--red)}
+
+.today-line{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed var(--mid);z-index:5;display:none}
+.today-line::before{content:'Today';position:absolute;top:-15px;left:-17px;font-size:7.5px;font-weight:800;color:var(--mid);background:#fff;padding:0 3px;white-space:nowrap}
+
+/* ===== Issue Register ===== */
+.register-intro{font-size:10px;color:var(--grey);margin-bottom:12px;line-height:1.5}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<div id="report">
+
+<div class="brandbar">
+  <div class="wordmark">accenture<span class="gt">&gt;</span></div>
+  <div class="dpill"><span id="ddate" contenteditable="true"></span></div>
+</div>
+
+<div class="hdr">
+  <div>
+    <h1 contenteditable="true">CETIN: Track 1 <span class="accent">Progress Dashboard</span></h1>
+    <p contenteditable="true">Use case progress &nbsp;&middot;&nbsp; Stage status &nbsp;&middot;&nbsp; Blockers</p>
+  </div>
+  <div class="hdr-actions" data-noexport="1">
+    <button class="tb-btn" onclick="exportPDF()">&#8681; Export PDF</button>
+    <button class="tb-btn" onclick="exportPNG()">&#128444; Export PNG</button>
+    <button class="tb-btn tb-primary" onclick="saveAsHTML()" title="Download HTML with all edits baked in">&#128190; Save as HTML</button>
+  </div>
+</div>
+
+<div class="tabbar level1" data-noexport="1">
+      <button class="tab active" onclick="showTab('projectsummary',this)">Project Summary</button>
+      <button class="tab" onclick="showTab('e2eplan',this)">E2E Plan</button>
+      <button class="tab" onclick="showTab('issueregister',this)">Issue Register</button>
+</div>
+
+<div id="tab-e2eplan" class="tabpage" style="display:none">
+  <div class="gantt-instance" data-key="engagement">
+  <div class="gantt-title-row">
+    <div class="g-plan-title" contenteditable="true"></div>
+  </div>
+  <div class="gantt-toolbar" data-noexport="1">
+    <button class="tb-btn tb-mini tb-primary" data-act="addActivity">&#43; Add activity</button>
+    <button class="tb-btn tb-mini" data-act="addPeriod">&#43; Add period</button>
+    <button class="tb-btn tb-mini" data-act="removePeriod">&minus; Remove last period</button>
+    <label class="gantt-inline-label">Start <input type="date" class="g-plan-start"></label>
+    <label class="gantt-inline-label">End <input type="date" class="g-plan-end"></label>
+    <label class="gantt-inline-label">View <select class="g-granularity"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label>
+    <div class="legend-mini">
+      <span><i class="leg-swatch" style="background:var(--ok)"></i>On Track</span>
+      <span><i class="leg-swatch" style="background:var(--amber)"></i>Delayed</span>
+      <span><i class="leg-swatch" style="background:var(--red)"></i>Off Track</span>
+      <span><i class="leg-flag" style="background:var(--amber)"></i>Delay</span>
+      <span><i class="leg-flag" style="background:var(--red)"></i>Blocker</span>
+    </div>
+  </div>
+  <p class="gantt-hint">Click &#9998; on any activity to set its start/end dates and add delay or blocker markers. Once set, the row collapses back to just the name and the chart bar.</p>
+  <div class="gantt-scroll-wrap">
+    <div class="gantt-row header">
+      <div class="row-left">Activities</div>
+      <div class="row-right"><div class="gantt-header-right"></div></div>
+    </div>
+    <div class="gantt-activity-rows"></div>
+    <div class="today-line"></div>
+  </div>
+  <script type="application/json" class="gantt-data">{"title": "CETIN Track 1: E2E Plan", "startDate": "2026-09-28", "endDate": "2026-11-08", "granularity": "weekly", "activities": [{"id": "a1001", "name": "Confirm SharePoint site & hosting approach", "start": "2026-09-28", "end": "2026-10-02", "status": "ok", "markers": []}, {"id": "a1002", "name": "Create SharePoint list (T1_Board)", "start": "2026-10-05", "end": "2026-10-09", "status": "ok", "markers": []}, {"id": "a1003", "name": "Enable page execution (Embed web part / custom scripts)", "start": "2026-10-05", "end": "2026-10-16", "status": "behind", "markers": [{"id": "mk1", "date": "2026-10-09", "type": "blocker", "label": "Awaiting site collection admin approval"}]}, {"id": "a1004", "name": "Wire REST API calls into dashboard", "start": "2026-10-12", "end": "2026-10-23", "status": "ok", "markers": [{"id": "mk2", "date": "2026-10-15", "type": "delay", "label": "REST endpoint auth issue"}]}, {"id": "a1005", "name": "Multi-user testing", "start": "2026-10-26", "end": "2026-10-30", "status": "ok", "markers": []}, {"id": "a1006", "name": "Rollout & training", "start": "2026-11-02", "end": "2026-11-06", "status": "ok", "markers": []}]}</script>
+</div>
+</div>
+
+<div id="tab-projectsummary" class="tabpage" style="display:block">
+
+  <div class="tabbar level2" data-noexport="1">
+        <button class="tab active" onclick="showUCTab('overview',this)">Overview</button>
+        <button class="tab" onclick="showUCTab('UC-33',this)">UC-33: Multi-Domain RCA</button>
+        <button class="tab" onclick="showUCTab('UC-20',this)">UC-20: Ticket Correlation</button>
+        <button class="tab" onclick="showUCTab('UC-18',this)">UC-18: Anomaly Detection</button>
+        <button class="tab" onclick="showUCTab('UC-21',this)">UC-21: Ticket Triaging</button>
+        <button class="tab" onclick="showUCTab('UC-29',this)">UC-29: Auto-Remediation</button>
+  </div>
+
+  <div id="l2-overview" class="uc-subpage" style="display:block">
+    <div class="tiles">
+      <div class="tile t1"><div class="n" id="totalCount" contenteditable="true">5</div><div class="l" contenteditable="true">Total use cases</div></div>
+      <div class="tile t3"><div class="n" id="discoveryCount" contenteditable="true">0</div><div class="l" contenteditable="true">In Discovery</div></div>
+      <div class="tile t3" style="border-top-color:#0e7490"><div class="n" id="designCount" contenteditable="true" style="color:#0e7490">0</div><div class="l" contenteditable="true">In Design</div></div>
+      <div class="tile t2"><div class="n" id="buildCount" contenteditable="true">0</div><div class="l" contenteditable="true">In Build</div></div>
+      <div class="tile t3" style="border-top-color:#1E8E3E"><div class="n" id="sitCount" contenteditable="true" style="color:#1E8E3E">0</div><div class="l" contenteditable="true">In SIT / E2ET / Prod</div></div>
+      <div class="tile t4"><div class="n" id="blockerCount" contenteditable="true">0</div><div class="l" contenteditable="true">Active blockers</div></div>
+      <div class="tile t5"><div class="n" id="statusCompare" style="font-size:14px;padding-top:2px">5 / 0 / 0</div><div class="l">On Track / Delayed / Off Track</div></div>
+    </div>
+    <div class="sec" contenteditable="true">Use case progress</div>
+    <div class="plan-leg" contenteditable="true">
+      <b style="color:#374151">Stages:</b>
+      <span class="pl">Discovery &rsaquo; Design &rsaquo; Build &rsaquo; SIT &rsaquo; E2ET &rsaquo; Prod (Shadow) &rsaquo; Prod</span>
+      &nbsp;&nbsp;<b style="color:#374151">Status:</b>
+      <span class="pl"><span class="pl-dot pl-ok"></span>On Track <b id="legOk">(5)</b></span>
+      <span class="pl"><span class="pl-dot pl-risk"></span>Delayed <b id="legDelayed">(0)</b></span>
+      <span class="pl"><span class="pl-dot pl-behind"></span>Off Track <b id="legOff">(0)</b></span>
+      <span class="pl" style="color:#9ca3af"><span class="pl-dot" style="background:#eef0f2;border:1px solid #cbd5e1"></span>Not started</span>
+    </div>
+    <div class="grid">
+  <div class="card">
+    <div class="card-top">
+      <div class="card-name" contenteditable="true">Unified Multi-Domain RCA Platform</div>
+      <div class="badges"><span class="uid" contenteditable="true">UC-33</span><span class="scen" contenteditable="true"></span><span class="pill pill-b">Discovery</span><span class="cstat stat-ok">On Track</span></div>
+    </div>
+    <div class="card-desc" contenteditable="true" data-placeholder="Add a short description of this use case&hellip;"></div>
+    <div class="stage-track"><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Discovery"></span><span class="st-lbl">Discovery</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Design"></span><span class="st-lbl">Design</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Build"></span><span class="st-lbl">Build</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="SIT"></span><span class="st-lbl">SIT</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="E2ET"></span><span class="st-lbl">E2ET</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Prod (Shadow)"></span><span class="st-lbl st-lbl-prod">Prod<br>(Shadow)</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Prod"></span><span class="st-lbl">Prod</span><span class="st-date" contenteditable="true"></span></div></div>
+    <div class="divider"></div>
+    <div><div class="field-label" contenteditable="true">Progress</div><div class="prog-txt" contenteditable="true" style="color:#9A93A8">No progress recorded yet.</div></div>
+    <div class="divider"></div>
+    <div><div class="field-label" contenteditable="true">Blockers</div><div class="none-txt" contenteditable="true">No blockers raised.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-top">
+      <div class="card-name" contenteditable="true">LLM-Enhanced Ticket Correlation</div>
+      <div class="badges"><span class="uid" contenteditable="true">UC-20</span><span class="scen" contenteditable="true"></span><span class="pill pill-b">Discovery</span><span class="cstat stat-ok">On Track</span></div>
+    </div>
+    <div class="card-desc" contenteditable="true" data-placeholder="Add a short description of this use case&hellip;"></div>
+    <div class="stage-track"><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Discovery"></span><span class="st-lbl">Discovery</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Design"></span><span class="st-lbl">Design</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Build"></span><span class="st-lbl">Build</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="SIT"></span><span class="st-lbl">SIT</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="E2ET"></span><span class="st-lbl">E2ET</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Prod (Shadow)"></span><span class="st-lbl st-lbl-prod">Prod<br>(Shadow)</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Prod"></span><span class="st-lbl">Prod</span><span class="st-date" contenteditable="true"></span></div></div>
+    <div class="divider"></div>
+    <div><div class="field-label" contenteditable="true">Progress</div><div class="prog-txt" contenteditable="true" style="color:#9A93A8">No progress recorded yet.</div></div>
+    <div class="divider"></div>
+    <div><div class="field-label" contenteditable="true">Blockers</div><div class="none-txt" contenteditable="true">No blockers raised.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-top">
+      <div class="card-name" contenteditable="true">Network Anomaly Detection &amp; Proactive Ticketing</div>
+      <div class="badges"><span class="uid" contenteditable="true">UC-18</span><span class="scen" contenteditable="true"></span><span class="pill pill-b">Discovery</span><span class="cstat stat-ok">On Track</span></div>
+    </div>
+    <div class="card-desc" contenteditable="true" data-placeholder="Add a short description of this use case&hellip;"></div>
+    <div class="stage-track"><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Discovery"></span><span class="st-lbl">Discovery</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Design"></span><span class="st-lbl">Design</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Build"></span><span class="st-lbl">Build</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="SIT"></span><span class="st-lbl">SIT</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="E2ET"></span><span class="st-lbl">E2ET</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Prod (Shadow)"></span><span class="st-lbl st-lbl-prod">Prod<br>(Shadow)</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Prod"></span><span class="st-lbl">Prod</span><span class="st-date" contenteditable="true"></span></div></div>
+    <div class="divider"></div>
+    <div><div class="field-label" contenteditable="true">Progress</div><div class="prog-txt" contenteditable="true" style="color:#9A93A8">No progress recorded yet.</div></div>
+    <div class="divider"></div>
+    <div><div class="field-label" contenteditable="true">Blockers</div><div class="none-txt" contenteditable="true">No blockers raised.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-top">
+      <div class="card-name" contenteditable="true">Ticket Triaging</div>
+      <div class="badges"><span class="uid" contenteditable="true">UC-21</span><span class="scen" contenteditable="true"></span><span class="pill pill-b">Discovery</span><span class="cstat stat-ok">On Track</span></div>
+    </div>
+    <div class="card-desc" contenteditable="true" data-placeholder="Add a short description of this use case&hellip;"></div>
+    <div class="stage-track"><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Discovery"></span><span class="st-lbl">Discovery</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Design"></span><span class="st-lbl">Design</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Build"></span><span class="st-lbl">Build</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="SIT"></span><span class="st-lbl">SIT</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="E2ET"></span><span class="st-lbl">E2ET</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Prod (Shadow)"></span><span class="st-lbl st-lbl-prod">Prod<br>(Shadow)</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Prod"></span><span class="st-lbl">Prod</span><span class="st-date" contenteditable="true"></span></div></div>
+    <div class="divider"></div>
+    <div><div class="field-label" contenteditable="true">Progress</div><div class="prog-txt" contenteditable="true" style="color:#9A93A8">No progress recorded yet.</div></div>
+    <div class="divider"></div>
+    <div><div class="field-label" contenteditable="true">Blockers</div><div class="none-txt" contenteditable="true">No blockers raised.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-top">
+      <div class="card-name" contenteditable="true">Proactive Network Health &amp; Auto-Remediation</div>
+      <div class="badges"><span class="uid" contenteditable="true">UC-29</span><span class="scen" contenteditable="true"></span><span class="pill pill-b">Discovery</span><span class="cstat stat-ok">On Track</span></div>
+    </div>
+    <div class="card-desc" contenteditable="true" data-placeholder="Add a short description of this use case&hellip;"></div>
+    <div class="stage-track"><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Discovery"></span><span class="st-lbl">Discovery</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Design"></span><span class="st-lbl">Design</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Build"></span><span class="st-lbl">Build</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="SIT"></span><span class="st-lbl">SIT</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="E2ET"></span><span class="st-lbl">E2ET</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Prod (Shadow)"></span><span class="st-lbl st-lbl-prod">Prod<br>(Shadow)</span><span class="st-date" contenteditable="true"></span></div><div class="stage"><span class="dot" onclick="cycleStage(this)" title="Prod"></span><span class="st-lbl">Prod</span><span class="st-date" contenteditable="true"></span></div></div>
+    <div class="divider"></div>
+    <div><div class="field-label" contenteditable="true">Progress</div><div class="prog-txt" contenteditable="true" style="color:#9A93A8">No progress recorded yet.</div></div>
+    <div class="divider"></div>
+    <div><div class="field-label" contenteditable="true">Blockers</div><div class="none-txt" contenteditable="true">No blockers raised.</div></div>
+  </div>
+    </div>
+  </div>
+
+<div id="tab-UC-33" class="uc-subpage" style="display:none">
+  <div class="uc-page-head">
+    <span class="uid" style="font-size:11px">UC-33</span>
+    <span class="uc-page-title" contenteditable="true">Unified Multi-Domain RCA Platform</span>
+    <span class="cstat stat-ok uc-status-sync">On Track</span>
+  </div>
+
+  <div class="panel-grid">
+    <div class="panel">
+      <div class="panel-head"><span class="panel-label">Key Highlights</span><button class="panel-edit-btn" onclick="focusEditBox(this)">&#9998; Edit</button></div>
+      <div class="edit-box" contenteditable="true" data-placeholder="Add the key highlights for UC-33&hellip;"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><span class="panel-label">Detailed Progress Update</span><button class="panel-edit-btn" onclick="focusEditBox(this)">&#9998; Edit</button></div>
+      <div class="edit-box" contenteditable="true" data-placeholder="Add a detailed progress update for UC-33&hellip;"></div>
+    </div>
+  </div>
+
+  <div class="sec">High-Level Plan</div>
+  <div class="gantt-instance" data-key="UC-33">
+  <div class="gantt-title-row">
+    <div class="g-plan-title" contenteditable="true"></div>
+  </div>
+  <div class="gantt-toolbar" data-noexport="1">
+    <button class="tb-btn tb-mini tb-primary" data-act="addActivity">&#43; Add activity</button>
+    <button class="tb-btn tb-mini" data-act="addPeriod">&#43; Add period</button>
+    <button class="tb-btn tb-mini" data-act="removePeriod">&minus; Remove last period</button>
+    <label class="gantt-inline-label">Start <input type="date" class="g-plan-start"></label>
+    <label class="gantt-inline-label">End <input type="date" class="g-plan-end"></label>
+    <label class="gantt-inline-label">View <select class="g-granularity"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label>
+    <div class="legend-mini">
+      <span><i class="leg-swatch" style="background:var(--ok)"></i>On Track</span>
+      <span><i class="leg-swatch" style="background:var(--amber)"></i>Delayed</span>
+      <span><i class="leg-swatch" style="background:var(--red)"></i>Off Track</span>
+      <span><i class="leg-flag" style="background:var(--amber)"></i>Delay</span>
+      <span><i class="leg-flag" style="background:var(--red)"></i>Blocker</span>
+    </div>
+  </div>
+  <p class="gantt-hint">Click &#9998; on any activity to set its start/end dates and add delay or blocker markers. Once set, the row collapses back to just the name and the chart bar.</p>
+  <div class="gantt-scroll-wrap">
+    <div class="gantt-row header">
+      <div class="row-left">Activities</div>
+      <div class="row-right"><div class="gantt-header-right"></div></div>
+    </div>
+    <div class="gantt-activity-rows"></div>
+    <div class="today-line"></div>
+  </div>
+  <script type="application/json" class="gantt-data">{"title": "High-Level Plan", "startDate": "2026-09-28", "endDate": "2026-11-08", "granularity": "weekly", "activities": []}</script>
+</div>
+
+  <div class="sec" style="margin-top:20px">Key issues &amp; risks</div>
+  <table class="risk-table">
+    <thead><tr>
+      <th style="width:28px">S#</th><th style="width:52px">INT/EXT</th><th style="width:66px">RID</th>
+      <th>Description</th><th style="width:76px">Raised On</th><th style="width:84px">Owner</th>
+      <th style="width:76px">ETC</th><th style="width:76px">Closed On</th><th style="width:80px"></th>
+    </tr></thead>
+    <tbody id="risk-UC-33"><tr class="rk-empty"><td colspan="9">No issues or risks logged yet.</td></tr></tbody>
+  </table>
+  <button class="tb-btn" onclick="addRiskRow('UC-33')">&#43; Add row</button>
+</div>
+<div id="tab-UC-20" class="uc-subpage" style="display:none">
+  <div class="uc-page-head">
+    <span class="uid" style="font-size:11px">UC-20</span>
+    <span class="uc-page-title" contenteditable="true">LLM-Enhanced Ticket Correlation</span>
+    <span class="cstat stat-ok uc-status-sync">On Track</span>
+  </div>
+
+  <div class="panel-grid">
+    <div class="panel">
+      <div class="panel-head"><span class="panel-label">Key Highlights</span><button class="panel-edit-btn" onclick="focusEditBox(this)">&#9998; Edit</button></div>
+      <div class="edit-box" contenteditable="true" data-placeholder="Add the key highlights for UC-20&hellip;"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><span class="panel-label">Detailed Progress Update</span><button class="panel-edit-btn" onclick="focusEditBox(this)">&#9998; Edit</button></div>
+      <div class="edit-box" contenteditable="true" data-placeholder="Add a detailed progress update for UC-20&hellip;"></div>
+    </div>
+  </div>
+
+  <div class="sec">High-Level Plan</div>
+  <div class="gantt-instance" data-key="UC-20">
+  <div class="gantt-title-row">
+    <div class="g-plan-title" contenteditable="true"></div>
+  </div>
+  <div class="gantt-toolbar" data-noexport="1">
+    <button class="tb-btn tb-mini tb-primary" data-act="addActivity">&#43; Add activity</button>
+    <button class="tb-btn tb-mini" data-act="addPeriod">&#43; Add period</button>
+    <button class="tb-btn tb-mini" data-act="removePeriod">&minus; Remove last period</button>
+    <label class="gantt-inline-label">Start <input type="date" class="g-plan-start"></label>
+    <label class="gantt-inline-label">End <input type="date" class="g-plan-end"></label>
+    <label class="gantt-inline-label">View <select class="g-granularity"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label>
+    <div class="legend-mini">
+      <span><i class="leg-swatch" style="background:var(--ok)"></i>On Track</span>
+      <span><i class="leg-swatch" style="background:var(--amber)"></i>Delayed</span>
+      <span><i class="leg-swatch" style="background:var(--red)"></i>Off Track</span>
+      <span><i class="leg-flag" style="background:var(--amber)"></i>Delay</span>
+      <span><i class="leg-flag" style="background:var(--red)"></i>Blocker</span>
+    </div>
+  </div>
+  <p class="gantt-hint">Click &#9998; on any activity to set its start/end dates and add delay or blocker markers. Once set, the row collapses back to just the name and the chart bar.</p>
+  <div class="gantt-scroll-wrap">
+    <div class="gantt-row header">
+      <div class="row-left">Activities</div>
+      <div class="row-right"><div class="gantt-header-right"></div></div>
+    </div>
+    <div class="gantt-activity-rows"></div>
+    <div class="today-line"></div>
+  </div>
+  <script type="application/json" class="gantt-data">{"title": "High-Level Plan", "startDate": "2026-09-28", "endDate": "2026-11-08", "granularity": "weekly", "activities": []}</script>
+</div>
+
+  <div class="sec" style="margin-top:20px">Key issues &amp; risks</div>
+  <table class="risk-table">
+    <thead><tr>
+      <th style="width:28px">S#</th><th style="width:52px">INT/EXT</th><th style="width:66px">RID</th>
+      <th>Description</th><th style="width:76px">Raised On</th><th style="width:84px">Owner</th>
+      <th style="width:76px">ETC</th><th style="width:76px">Closed On</th><th style="width:80px"></th>
+    </tr></thead>
+    <tbody id="risk-UC-20"><tr class="rk-empty"><td colspan="9">No issues or risks logged yet.</td></tr></tbody>
+  </table>
+  <button class="tb-btn" onclick="addRiskRow('UC-20')">&#43; Add row</button>
+</div>
+<div id="tab-UC-18" class="uc-subpage" style="display:none">
+  <div class="uc-page-head">
+    <span class="uid" style="font-size:11px">UC-18</span>
+    <span class="uc-page-title" contenteditable="true">Network Anomaly Detection &amp; Proactive Ticketing</span>
+    <span class="cstat stat-ok uc-status-sync">On Track</span>
+  </div>
+
+  <div class="panel-grid">
+    <div class="panel">
+      <div class="panel-head"><span class="panel-label">Key Highlights</span><button class="panel-edit-btn" onclick="focusEditBox(this)">&#9998; Edit</button></div>
+      <div class="edit-box" contenteditable="true" data-placeholder="Add the key highlights for UC-18&hellip;"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><span class="panel-label">Detailed Progress Update</span><button class="panel-edit-btn" onclick="focusEditBox(this)">&#9998; Edit</button></div>
+      <div class="edit-box" contenteditable="true" data-placeholder="Add a detailed progress update for UC-18&hellip;"></div>
+    </div>
+  </div>
+
+  <div class="sec">High-Level Plan</div>
+  <div class="gantt-instance" data-key="UC-18">
+  <div class="gantt-title-row">
+    <div class="g-plan-title" contenteditable="true"></div>
+  </div>
+  <div class="gantt-toolbar" data-noexport="1">
+    <button class="tb-btn tb-mini tb-primary" data-act="addActivity">&#43; Add activity</button>
+    <button class="tb-btn tb-mini" data-act="addPeriod">&#43; Add period</button>
+    <button class="tb-btn tb-mini" data-act="removePeriod">&minus; Remove last period</button>
+    <label class="gantt-inline-label">Start <input type="date" class="g-plan-start"></label>
+    <label class="gantt-inline-label">End <input type="date" class="g-plan-end"></label>
+    <label class="gantt-inline-label">View <select class="g-granularity"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label>
+    <div class="legend-mini">
+      <span><i class="leg-swatch" style="background:var(--ok)"></i>On Track</span>
+      <span><i class="leg-swatch" style="background:var(--amber)"></i>Delayed</span>
+      <span><i class="leg-swatch" style="background:var(--red)"></i>Off Track</span>
+      <span><i class="leg-flag" style="background:var(--amber)"></i>Delay</span>
+      <span><i class="leg-flag" style="background:var(--red)"></i>Blocker</span>
+    </div>
+  </div>
+  <p class="gantt-hint">Click &#9998; on any activity to set its start/end dates and add delay or blocker markers. Once set, the row collapses back to just the name and the chart bar.</p>
+  <div class="gantt-scroll-wrap">
+    <div class="gantt-row header">
+      <div class="row-left">Activities</div>
+      <div class="row-right"><div class="gantt-header-right"></div></div>
+    </div>
+    <div class="gantt-activity-rows"></div>
+    <div class="today-line"></div>
+  </div>
+  <script type="application/json" class="gantt-data">{"title": "High-Level Plan", "startDate": "2026-09-28", "endDate": "2026-11-08", "granularity": "weekly", "activities": []}</script>
+</div>
+
+  <div class="sec" style="margin-top:20px">Key issues &amp; risks</div>
+  <table class="risk-table">
+    <thead><tr>
+      <th style="width:28px">S#</th><th style="width:52px">INT/EXT</th><th style="width:66px">RID</th>
+      <th>Description</th><th style="width:76px">Raised On</th><th style="width:84px">Owner</th>
+      <th style="width:76px">ETC</th><th style="width:76px">Closed On</th><th style="width:80px"></th>
+    </tr></thead>
+    <tbody id="risk-UC-18"><tr class="rk-empty"><td colspan="9">No issues or risks logged yet.</td></tr></tbody>
+  </table>
+  <button class="tb-btn" onclick="addRiskRow('UC-18')">&#43; Add row</button>
+</div>
+<div id="tab-UC-21" class="uc-subpage" style="display:none">
+  <div class="uc-page-head">
+    <span class="uid" style="font-size:11px">UC-21</span>
+    <span class="uc-page-title" contenteditable="true">Ticket Triaging</span>
+    <span class="cstat stat-ok uc-status-sync">On Track</span>
+  </div>
+
+  <div class="panel-grid">
+    <div class="panel">
+      <div class="panel-head"><span class="panel-label">Key Highlights</span><button class="panel-edit-btn" onclick="focusEditBox(this)">&#9998; Edit</button></div>
+      <div class="edit-box" contenteditable="true" data-placeholder="Add the key highlights for UC-21&hellip;"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><span class="panel-label">Detailed Progress Update</span><button class="panel-edit-btn" onclick="focusEditBox(this)">&#9998; Edit</button></div>
+      <div class="edit-box" contenteditable="true" data-placeholder="Add a detailed progress update for UC-21&hellip;"></div>
+    </div>
+  </div>
+
+  <div class="sec">High-Level Plan</div>
+  <div class="gantt-instance" data-key="UC-21">
+  <div class="gantt-title-row">
+    <div class="g-plan-title" contenteditable="true"></div>
+  </div>
+  <div class="gantt-toolbar" data-noexport="1">
+    <button class="tb-btn tb-mini tb-primary" data-act="addActivity">&#43; Add activity</button>
+    <button class="tb-btn tb-mini" data-act="addPeriod">&#43; Add period</button>
+    <button class="tb-btn tb-mini" data-act="removePeriod">&minus; Remove last period</button>
+    <label class="gantt-inline-label">Start <input type="date" class="g-plan-start"></label>
+    <label class="gantt-inline-label">End <input type="date" class="g-plan-end"></label>
+    <label class="gantt-inline-label">View <select class="g-granularity"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label>
+    <div class="legend-mini">
+      <span><i class="leg-swatch" style="background:var(--ok)"></i>On Track</span>
+      <span><i class="leg-swatch" style="background:var(--amber)"></i>Delayed</span>
+      <span><i class="leg-swatch" style="background:var(--red)"></i>Off Track</span>
+      <span><i class="leg-flag" style="background:var(--amber)"></i>Delay</span>
+      <span><i class="leg-flag" style="background:var(--red)"></i>Blocker</span>
+    </div>
+  </div>
+  <p class="gantt-hint">Click &#9998; on any activity to set its start/end dates and add delay or blocker markers. Once set, the row collapses back to just the name and the chart bar.</p>
+  <div class="gantt-scroll-wrap">
+    <div class="gantt-row header">
+      <div class="row-left">Activities</div>
+      <div class="row-right"><div class="gantt-header-right"></div></div>
+    </div>
+    <div class="gantt-activity-rows"></div>
+    <div class="today-line"></div>
+  </div>
+  <script type="application/json" class="gantt-data">{"title": "High-Level Plan", "startDate": "2026-09-28", "endDate": "2026-11-08", "granularity": "weekly", "activities": []}</script>
+</div>
+
+  <div class="sec" style="margin-top:20px">Key issues &amp; risks</div>
+  <table class="risk-table">
+    <thead><tr>
+      <th style="width:28px">S#</th><th style="width:52px">INT/EXT</th><th style="width:66px">RID</th>
+      <th>Description</th><th style="width:76px">Raised On</th><th style="width:84px">Owner</th>
+      <th style="width:76px">ETC</th><th style="width:76px">Closed On</th><th style="width:80px"></th>
+    </tr></thead>
+    <tbody id="risk-UC-21"><tr class="rk-empty"><td colspan="9">No issues or risks logged yet.</td></tr></tbody>
+  </table>
+  <button class="tb-btn" onclick="addRiskRow('UC-21')">&#43; Add row</button>
+</div>
+<div id="tab-UC-29" class="uc-subpage" style="display:none">
+  <div class="uc-page-head">
+    <span class="uid" style="font-size:11px">UC-29</span>
+    <span class="uc-page-title" contenteditable="true">Proactive Network Health &amp; Auto-Remediation</span>
+    <span class="cstat stat-ok uc-status-sync">On Track</span>
+  </div>
+
+  <div class="panel-grid">
+    <div class="panel">
+      <div class="panel-head"><span class="panel-label">Key Highlights</span><button class="panel-edit-btn" onclick="focusEditBox(this)">&#9998; Edit</button></div>
+      <div class="edit-box" contenteditable="true" data-placeholder="Add the key highlights for UC-29&hellip;"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><span class="panel-label">Detailed Progress Update</span><button class="panel-edit-btn" onclick="focusEditBox(this)">&#9998; Edit</button></div>
+      <div class="edit-box" contenteditable="true" data-placeholder="Add a detailed progress update for UC-29&hellip;"></div>
+    </div>
+  </div>
+
+  <div class="sec">High-Level Plan</div>
+  <div class="gantt-instance" data-key="UC-29">
+  <div class="gantt-title-row">
+    <div class="g-plan-title" contenteditable="true"></div>
+  </div>
+  <div class="gantt-toolbar" data-noexport="1">
+    <button class="tb-btn tb-mini tb-primary" data-act="addActivity">&#43; Add activity</button>
+    <button class="tb-btn tb-mini" data-act="addPeriod">&#43; Add period</button>
+    <button class="tb-btn tb-mini" data-act="removePeriod">&minus; Remove last period</button>
+    <label class="gantt-inline-label">Start <input type="date" class="g-plan-start"></label>
+    <label class="gantt-inline-label">End <input type="date" class="g-plan-end"></label>
+    <label class="gantt-inline-label">View <select class="g-granularity"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label>
+    <div class="legend-mini">
+      <span><i class="leg-swatch" style="background:var(--ok)"></i>On Track</span>
+      <span><i class="leg-swatch" style="background:var(--amber)"></i>Delayed</span>
+      <span><i class="leg-swatch" style="background:var(--red)"></i>Off Track</span>
+      <span><i class="leg-flag" style="background:var(--amber)"></i>Delay</span>
+      <span><i class="leg-flag" style="background:var(--red)"></i>Blocker</span>
+    </div>
+  </div>
+  <p class="gantt-hint">Click &#9998; on any activity to set its start/end dates and add delay or blocker markers. Once set, the row collapses back to just the name and the chart bar.</p>
+  <div class="gantt-scroll-wrap">
+    <div class="gantt-row header">
+      <div class="row-left">Activities</div>
+      <div class="row-right"><div class="gantt-header-right"></div></div>
+    </div>
+    <div class="gantt-activity-rows"></div>
+    <div class="today-line"></div>
+  </div>
+  <script type="application/json" class="gantt-data">{"title": "High-Level Plan", "startDate": "2026-09-28", "endDate": "2026-11-08", "granularity": "weekly", "activities": []}</script>
+</div>
+
+  <div class="sec" style="margin-top:20px">Key issues &amp; risks</div>
+  <table class="risk-table">
+    <thead><tr>
+      <th style="width:28px">S#</th><th style="width:52px">INT/EXT</th><th style="width:66px">RID</th>
+      <th>Description</th><th style="width:76px">Raised On</th><th style="width:84px">Owner</th>
+      <th style="width:76px">ETC</th><th style="width:76px">Closed On</th><th style="width:80px"></th>
+    </tr></thead>
+    <tbody id="risk-UC-29"><tr class="rk-empty"><td colspan="9">No issues or risks logged yet.</td></tr></tbody>
+  </table>
+  <button class="tb-btn" onclick="addRiskRow('UC-29')">&#43; Add row</button>
+</div>
+</div>
+
+<div id="tab-issueregister" class="tabpage" style="display:none">
+  <div class="sec">Issue Register &mdash; Engagement Level</div>
+  <p class="register-intro">Consolidated risks &amp; issues across all use cases, plus generic engagement-level entries. Use the &#8679; Push button on a use case's Key Issues &amp; Risks table to copy an item here &mdash; the original stays in place at the use case level. Register numbers (S#) are permanent once assigned and are never reused, even after a row is deleted.</p>
+  <table class="risk-table">
+    <thead><tr>
+      <th style="width:28px">S#</th><th style="width:52px">INT/EXT</th><th style="width:66px">RID</th>
+      <th>Description</th><th style="width:76px">Raised On</th><th style="width:84px">Owner</th>
+      <th style="width:76px">ETC</th><th style="width:76px">Closed On</th><th style="width:34px"></th>
+    </tr></thead>
+    <tbody id="risk-REGISTER"><tr class="rk-empty"><td colspan="9">No issues or risks logged yet.</td></tr></tbody>
+  </table>
+  <button class="tb-btn tb-primary" onclick="addRegisterRow()">&#43; Add risk / issue</button>
+  <script type="application/json" id="register-meta-data">{"nextSno":1}</script>
+</div>
+
+</div>
+
+<div class="autosave-footer">
+  <span id="tbStatus" class="tb-status">Auto-save on &mdash; every edit is saved in your browser automatically.</span>
+</div>
+
+<script>
+  // ================= Config =================
+  var LS_KEY = 'cetin_track1_dashboard_v2';
+  var UC_LIST = ['UC-33','UC-20','UC-18','UC-21','UC-29'];
+  var UC_SHORT = {'UC-33':'UC-33: Multi-Domain RCA','UC-20':'UC-20: Ticket Correlation','UC-18':'UC-18: Anomaly Detection','UC-21':'UC-21: Ticket Triaging','UC-29':'UC-29: Auto-Remediation'};
+  var STAGE_NAMES = ['Discovery','Design','Build','SIT','E2ET','Prod (Shadow)','Prod'];
+
+  function newId(prefix){ return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+  function escTxt(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+  function escAttr(t){ return (t||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+  // ================= Date =================
+  (function(){
+    var d = new Date();
+    var el = document.getElementById('ddate');
+    if (el) el.textContent = d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  })();
+
+  // ================= Tab switching (2 levels) =================
+  function showTab(id, btn){
+    document.querySelectorAll('.tabpage').forEach(function(p){ p.style.display='none'; });
+    var target = document.getElementById('tab-' + id);
+    if (target) target.style.display = 'block';
+    document.querySelectorAll('.tabbar.level1 .tab').forEach(function(t){ t.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    syncAllStatuses();
+  }
+  window.showTab = showTab;
+
+  function showUCTab(id, btn){
+    document.querySelectorAll('#tab-projectsummary .uc-subpage').forEach(function(p){ p.style.display='none'; });
+    var targetId = (id === 'overview') ? 'l2-overview' : 'tab-' + id;
+    var target = document.getElementById(targetId);
+    if (target) target.style.display = 'block';
+    document.querySelectorAll('#tab-projectsummary .tabbar.level2 .tab').forEach(function(t){ t.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    syncAllStatuses();
+  }
+  window.showUCTab = showUCTab;
+
+  function syncAllStatuses(){
+    UC_LIST.forEach(function(uid){
+      var card = findCardByUid(uid);
+      var page = document.getElementById('tab-' + uid);
+      if (!card || !page) return;
+      var cs = card.querySelector('.cstat');
+      var target = page.querySelector('.uc-status-sync');
+      if (cs && target){
+        target.textContent = cs.textContent;
+        var statClass = 'stat-ok';
+        ['stat-ok','stat-behind','stat-off'].forEach(function(c){ if (cs.classList.contains(c)) statClass = c; });
+        target.className = 'cstat uc-status-sync ' + statClass;
+      }
+    });
+  }
+
+  function findCardByUid(uid){
+    var cards = document.querySelectorAll('.grid .card');
+    for (var i=0;i<cards.length;i++){
+      var u = cards[i].querySelector('.uid');
+      if (u && u.textContent.trim() === uid) return cards[i];
+    }
+    return null;
+  }
+
+  // ================= Recount tiles & status (Home page cards) =================
+  function recount(){
+    var cards = document.querySelectorAll('.grid .card');
+    var tot = document.getElementById('totalCount'); if (tot) tot.textContent = cards.length;
+    var build=0, design=0, disc=0, sit=0;
+    cards.forEach(function(card){
+      var dots = card.querySelectorAll('.stage-track .dot');
+      var cur = -1;
+      dots.forEach(function(dt,i){
+        if (dt.classList.contains('g') || dt.classList.contains('a') || dt.classList.contains('r')) cur = i;
+      });
+      var pill = card.querySelector('.pill');
+      if (pill && cur>=0 && STAGE_NAMES[cur]) pill.textContent = STAGE_NAMES[cur];
+      if (cur===0) disc++;
+      else if (cur===1) design++;
+      else if (cur===2) build++;
+      else if (cur>=3) sit++;
+    });
+    var bc=document.getElementById('buildCount'); if (bc) bc.textContent=build;
+    var dc=document.getElementById('designCount'); if (dc) dc.textContent=design;
+    var scv=document.getElementById('discoveryCount'); if (scv) scv.textContent=disc;
+    var stc=document.getElementById('sitCount'); if (stc) stc.textContent=sit;
+
+    var nb=0;
+    cards.forEach(function(card){
+      var b = card.querySelector('.bloc-txt, .none-txt');
+      if (!b) return;
+      var t = b.textContent.trim().toLowerCase();
+      var empty = t==='' || t.indexOf('no blocker')>=0 || t==='none' || t==='n/a' || t==='na' || t==='-';
+      if (!empty) nb++;
+    });
+    var bl=document.getElementById('blockerCount'); if (bl) bl.textContent=nb;
+
+    var ok=0, behind=0, off=0;
+    cards.forEach(function(card){
+      var cs = card.querySelector('.cstat');
+      if (!cs) return;
+      var hasRed = card.querySelector('.stage-track .dot.r');
+      var hasAmber = card.querySelector('.stage-track .dot.a');
+      var label, cls;
+      if (hasRed){ label='Off Track'; cls='stat-off'; off++; }
+      else if (hasAmber){ label='Delayed'; cls='stat-behind'; behind++; }
+      else { label='On Track'; cls='stat-ok'; ok++; }
+      cs.textContent = label;
+      cs.classList.remove('stat-ok','stat-behind','stat-off');
+      cs.classList.add(cls);
+    });
+    var scmp=document.getElementById('statusCompare'); if (scmp) scmp.textContent = ok+' / '+behind+' / '+off;
+    var lo=document.getElementById('legOk'); if (lo) lo.textContent='('+ok+')';
+    var ld=document.getElementById('legDelayed'); if (ld) ld.textContent='('+behind+')';
+    var lf=document.getElementById('legOff'); if (lf) lf.textContent='('+off+')';
+    syncAllStatuses();
+  }
+
+  // ================= Stage dot cycling =================
+  function cycleStage(dot){
+    if (dot.classList.contains('g')){ dot.classList.remove('g'); dot.classList.add('a'); }
+    else if (dot.classList.contains('a')){ dot.classList.remove('a'); dot.classList.add('r'); }
+    else if (dot.classList.contains('r')){ dot.classList.remove('r'); }
+    else { dot.classList.add('g'); }
+    recount();
+    scheduleSave();
+  }
+  window.cycleStage = cycleStage;
+
+  // ================= Edit-box focus (Key Highlights / Progress Update) =================
+  function focusEditBox(btn){
+    var panel = btn.closest('.panel');
+    var box = panel ? panel.querySelector('.edit-box') : null;
+    if (box){ box.focus(); placeCaretAtEnd(box); }
+  }
+  window.focusEditBox = focusEditBox;
+  function placeCaretAtEnd(el){
+    try{
+      var range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }catch(e){}
+  }
+
+  // ================= Key issues & risks (per use case) + Issue Register =================
+  function riskRowTds(withPush){
+    var pushBtn = withPush ? '<button class="rk-push" onclick="pushRiskRow(this)" title="Push a copy to the Issue Register">&#8679; Push</button>' : '';
+    return '<td class="rk-sno"></td>'
+      + '<td class="rk-io-cell" onclick="toggleRiskTag(this.querySelector(\'.risk-tag\'))" title="Click to toggle Internal / External"><span class="risk-tag bt-ext">EXT</span></td>'
+      + '<td contenteditable="true" data-ph="e.g. R-01"></td>'
+      + '<td contenteditable="true" data-ph="Describe the issue or risk&hellip;" class="rk-desc"></td>'
+      + '<td contenteditable="true" data-ph="dd-Mon"></td>'
+      + '<td contenteditable="true" data-ph="Owner"></td>'
+      + '<td contenteditable="true" data-ph="dd-Mon"></td>'
+      + '<td contenteditable="true" data-ph="dd-Mon"></td>'
+      + '<td class="rk-actions">' + pushBtn + '<button class="rk-del" onclick="deleteRiskRow(this)" title="Remove row">&times;</button></td>';
+  }
+  function addRiskRow(uid){
+    var tbody = document.getElementById('risk-' + uid);
+    if (!tbody) return;
+    removeEmptyRow(tbody);
+    var tr = document.createElement('tr');
+    tr.innerHTML = riskRowTds(true);
+    tbody.appendChild(tr);
+    renumberRisk(tbody);
+    wireRiskRow(tr);
+    var firstEditable = tr.querySelector('[contenteditable]');
+    if (firstEditable) firstEditable.focus();
+    scheduleSave();
+  }
+  window.addRiskRow = addRiskRow;
+
+  function deleteRiskRow(btn){
+    var tr = btn.closest('tr');
+    var tbody = tr ? tr.closest('tbody') : null;
+    if (tr) tr.remove();
+    if (tbody){
+      renumberRisk(tbody);
+      if (!tbody.querySelector('tr')) addEmptyRow(tbody, tbody.dataset.cols || 9);
+    }
+    scheduleSave();
+  }
+  window.deleteRiskRow = deleteRiskRow;
+
+  function toggleRiskTag(el){
+    if (el.classList.contains('bt-ext')){ el.classList.remove('bt-ext'); el.classList.add('bt-int'); el.textContent='INT'; }
+    else { el.classList.remove('bt-int'); el.classList.add('bt-ext'); el.textContent='EXT'; }
+    scheduleSave();
+  }
+  window.toggleRiskTag = toggleRiskTag;
+
+  function renumberRisk(tbody){
+    var rows = tbody.querySelectorAll('tr:not(.rk-empty)');
+    rows.forEach(function(tr,i){
+      var c = tr.querySelector('.rk-sno');
+      if (c) c.textContent = i+1;
+    });
+  }
+  function addEmptyRow(tbody, cols){
+    if (tbody.querySelector('.rk-empty')) return;
+    var tr = document.createElement('tr');
+    tr.className = 'rk-empty';
+    tr.innerHTML = '<td colspan="'+(cols||9)+'">No issues or risks logged yet.</td>';
+    tbody.appendChild(tr);
+  }
+  function removeEmptyRow(tbody){
+    var e = tbody.querySelector('.rk-empty');
+    if (e) e.remove();
+  }
+  function wireRiskRow(tr){
+    tr.querySelectorAll('[contenteditable]').forEach(function(el){
+      if (el._wired) return; el._wired = true;
+      el.addEventListener('input', scheduleSave);
+      el.addEventListener('blur', scheduleSave);
+    });
+  }
+  function wireAllRiskTables(){
+    UC_LIST.concat(['REGISTER']).forEach(function(uid){
+      var tbody = document.getElementById('risk-' + uid);
+      if (!tbody) return;
+      tbody.querySelectorAll('tr:not(.rk-empty)').forEach(wireRiskRow);
+    });
+  }
+
+  // ---- Issue Register ----
+  var REGISTER_NEXT_SNO = 1;
+  function registerRowTds(sno, data){
+    data = data || {};
+    var io = data.io === 'INT' ? 'INT' : 'EXT';
+    var ioClass = (io==='INT') ? 'bt-int' : 'bt-ext';
+    return '<td class="rk-sno">'+sno+'</td>'
+      + '<td class="rk-io-cell" onclick="toggleRiskTag(this.querySelector(\'.risk-tag\'))" title="Click to toggle Internal / External"><span class="risk-tag '+ioClass+'">'+io+'</span></td>'
+      + '<td contenteditable="true" data-ph="e.g. R-01">'+escTxt(data.rid)+'</td>'
+      + '<td contenteditable="true" data-ph="Describe the issue or risk&hellip;" class="rk-desc">'+escTxt(data.desc)+'</td>'
+      + '<td contenteditable="true" data-ph="dd-Mon">'+escTxt(data.raisedOn)+'</td>'
+      + '<td contenteditable="true" data-ph="Owner">'+escTxt(data.owner)+'</td>'
+      + '<td contenteditable="true" data-ph="dd-Mon">'+escTxt(data.etc)+'</td>'
+      + '<td contenteditable="true" data-ph="dd-Mon">'+escTxt(data.closedOn)+'</td>'
+      + '<td class="rk-actions"><button class="rk-del" onclick="deleteRegisterRow(this)" title="Remove row">&times;</button></td>';
+  }
+  function addRegisterRowData(data){
+    var tbody = document.getElementById('risk-REGISTER');
+    if (!tbody) return;
+    removeEmptyRow(tbody);
+    var sno = REGISTER_NEXT_SNO++;
+    var tr = document.createElement('tr');
+    tr.innerHTML = registerRowTds(sno, data);
+    tbody.appendChild(tr);
+    wireRiskRow(tr);
+    scheduleSave();
+    return tr;
+  }
+  function addRegisterRow(){
+    var tr = addRegisterRowData({});
+    var firstEditable = tr && tr.querySelector('[contenteditable]');
+    if (firstEditable) firstEditable.focus();
+  }
+  window.addRegisterRow = addRegisterRow;
+
+  function deleteRegisterRow(btn){
+    var tr = btn.closest('tr');
+    var tbody = tr ? tr.closest('tbody') : null;
+    if (tr) tr.remove();
+    // Deliberately NOT renumbering: register S# values are permanent once assigned.
+    if (tbody && !tbody.querySelector('tr')) addEmptyRow(tbody, 9);
+    scheduleSave();
+  }
+  window.deleteRegisterRow = deleteRegisterRow;
+
+  function pushRiskRow(btn){
+    var tr = btn.closest('tr');
+    var tbody = tr.closest('tbody');
+    var uid = tbody.id.replace('risk-','');
+    var tds = tr.children;
+    var ioTag = tds[1].querySelector('.risk-tag');
+    var io = ioTag ? ioTag.textContent.trim() : 'EXT';
+    var rid = tds[2].textContent.trim();
+    var desc = tds[3].textContent.trim();
+    var shortLabel = UC_SHORT[uid] || uid;
+    var tagPrefix = '['+shortLabel+'] ';
+    if (desc.indexOf(tagPrefix) !== 0) desc = tagPrefix + desc;
+    var raisedOn = tds[4].textContent.trim();
+    var owner = tds[5].textContent.trim();
+    var etc = tds[6].textContent.trim();
+    var closedOn = tds[7].textContent.trim();
+    addRegisterRowData({ io:io, rid:rid, desc:desc, raisedOn:raisedOn, owner:owner, etc:etc, closedOn:closedOn });
+    btn.innerHTML = '&#8635; Re-push';
+    btn.classList.add('pushed');
+    scheduleSave();
+  }
+  window.pushRiskRow = pushRiskRow;
+
+  // ================= Reusable multi-instance Gantt (High-Level Plan) module =================
+  var GANTT = {};
+  function toDate(s){ var p = s.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
+  function toISO(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function addDays(d,n){ return new Date(d.getTime()+n*86400000); }
+  function daysBetween(a,b){ return (b-a)/86400000; }
+  function fmtShort(d){ return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'}); }
+
+  function initGantt(key, container, defaultData){
+    var plan = JSON.parse(JSON.stringify(defaultData));
+    var LEFT_W = 300;
+
+    function planRange(){
+      var s = toDate(plan.startDate), e = toDate(plan.endDate);
+      if (e <= s) e = addDays(s,7);
+      return { start:s, end:e, totalDays: Math.max(1,daysBetween(s,e)) };
+    }
+    function pctOf(dateVal){
+      var r = planRange();
+      var v = (daysBetween(r.start, dateVal)/r.totalDays)*100;
+      return Math.max(0, Math.min(100, v));
+    }
+    function buildColumns(){
+      var r = planRange();
+      var cols = [];
+      if (plan.granularity === 'monthly'){
+        var cur = new Date(r.start.getFullYear(), r.start.getMonth(), 1);
+        var idx = 0;
+        while (cur < r.end){
+          var next = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
+          var segStart = cur < r.start ? r.start : cur;
+          var segEnd = next > r.end ? r.end : next;
+          cols.push({
+            label: (plan.colLabels && plan.colLabels[idx]) ? plan.colLabels[idx] : cur.toLocaleDateString('en-GB',{month:'short',year:'2-digit'}),
+            left: pctOf(segStart), width: Math.max(0, pctOf(segEnd)-pctOf(segStart))
+          });
+          cur = next; idx++;
+        }
+      } else {
+        var cur2 = new Date(r.start), idx2 = 0;
+        while (cur2 < r.end){
+          var next2 = addDays(cur2,7);
+          var segEnd2 = next2 > r.end ? r.end : next2;
+          cols.push({
+            label: (plan.colLabels && plan.colLabels[idx2]) ? plan.colLabels[idx2] : ('Wk '+(idx2+1)+'<br><span class="col-sub">'+fmtShort(cur2)+'</span>'),
+            left: pctOf(cur2), width: Math.max(0, pctOf(segEnd2)-pctOf(cur2))
+          });
+          cur2 = next2; idx2++;
+        }
+      }
+      return cols;
+    }
+
+    var expandedIds = {}; // transient (session-only) UI state: which activity rows are in "edit" mode
+
+    function renderAll(){ renderLeft(); renderRight(); }
+
+    function insertActivityAfter(act){
+      var idx = act ? plan.activities.indexOf(act) : plan.activities.length-1;
+      var baseDate = act ? act.start : toISO(planRange().start);
+      var newAct = { id:newId('a'), name:'New activity', start:baseDate, end:baseDate, status:'ok', markers:[] };
+      plan.activities.splice(idx+1, 0, newAct);
+      expandedIds[newAct.id] = true;
+      renderAll(); scheduleSave();
+      var rowEl = container.querySelector('.gantt-row.activity[data-id="'+newAct.id+'"]');
+      var nameInput = rowEl && rowEl.querySelector('.act-name');
+      if (nameInput){ nameInput.focus(); nameInput.select(); }
+    }
+
+    function renderLeft(){
+      var wrap = container.querySelector('.gantt-activity-rows');
+      wrap.innerHTML = '';
+      plan.activities.forEach(function(act){
+        var isEditing = !!expandedIds[act.id];
+        var row = document.createElement('div');
+        row.className = 'gantt-row activity' + (isEditing ? ' editing' : '');
+        row.dataset.id = act.id;
+
+        var left = document.createElement('div');
+        left.className = 'row-left';
+        left.innerHTML =
+          '<div class="act-top">'
+            + '<span class="act-name-label">'+escTxt(act.name || 'Untitled activity')+'</span>'
+            + '<input type="text" class="act-name" value="'+escAttr(act.name)+'" title="'+escAttr(act.name)+'" placeholder="Activity name\u2026">'
+            + '<button class="act-edit-toggle" title="'+(isEditing?'Done editing':'Edit dates & markers')+'">'+(isEditing ? '&#10003;' : '&#9998;')+'</button>'
+            + '<button class="act-insert-btn" title="Insert a new activity below this one">&#43;</button>'
+            + '<button class="act-del" title="Remove activity">&times;</button>'
+          + '</div>'
+          + '<div class="act-edit-area">'
+            + '<div class="act-dates">'
+              + '<label>Start <input type="date" class="act-start" value="'+act.start+'"></label>'
+              + '<label>End <input type="date" class="act-end" value="'+act.end+'"></label>'
+              + '<span class="act-status-pill status-'+act.status+'" title="Click to change status">'+({ok:'On Track',behind:'Delayed',off:'Off Track'})[act.status]+'</span>'
+            + '</div>'
+            + '<div class="marker-chips">'+ (act.markers||[]).map(function(mk){
+                return '<span class="marker-chip mk-'+mk.type+'" data-mkid="'+mk.id+'">'
+                  + (mk.type==='blocker' ? '&#9873; Blocker' : '&#9888; Delay') + ' \u00b7 ' + fmtShort(toDate(mk.date))
+                  + (mk.label ? ': '+escTxt(mk.label) : '')
+                  + '<b class="mk-x" data-mkid="'+mk.id+'">&times;</b></span>';
+              }).join('') + '</div>'
+            + '<div class="marker-form" style="display:none">'
+              + '<input type="date" class="mk-date" value="'+act.start+'">'
+              + '<select class="mk-type"><option value="delay">Delay</option><option value="blocker">Blocker</option></select>'
+              + '<input type="text" class="mk-label" placeholder="Short note (optional)">'
+              + '<button class="mk-add">Add</button>'
+              + '<button class="mk-cancel">Cancel</button>'
+            + '</div>'
+            + '<button class="add-marker-btn">&#9873; Add marker</button>'
+          + '</div>';
+
+        var right = document.createElement('div');
+        right.className = 'row-right';
+        right.innerHTML = '<div class="gridlines"></div><div class="bar-layer"></div>';
+
+        row.appendChild(left);
+        row.appendChild(right);
+        wrap.appendChild(row);
+
+        left.querySelector('.act-name').addEventListener('input', function(e){
+          act.name = e.target.value; e.target.title = e.target.value;
+          left.querySelector('.act-name-label').textContent = e.target.value || 'Untitled activity';
+          scheduleSave();
+        });
+        left.querySelector('.act-edit-toggle').addEventListener('click', function(){
+          if (expandedIds[act.id]) delete expandedIds[act.id]; else expandedIds[act.id] = true;
+          renderLeft();
+        });
+        left.querySelector('.act-insert-btn').addEventListener('click', function(){ insertActivityAfter(act); });
+        left.querySelector('.act-del').addEventListener('click', function(){
+          if (!confirm('Remove "'+(act.name||'this activity')+'"?')) return;
+          delete expandedIds[act.id];
+          plan.activities.splice(plan.activities.indexOf(act),1);
+          renderAll(); scheduleSave();
+        });
+        left.querySelector('.act-start').addEventListener('change', function(e){ act.start = e.target.value; if (act.end < act.start) act.end = act.start; left.querySelector('.act-end').value = act.end; renderRight(); scheduleSave(); });
+        left.querySelector('.act-end').addEventListener('change', function(e){ act.end = e.target.value; if (act.end < act.start) act.end = act.start; e.target.value = act.end; renderRight(); scheduleSave(); });
+        left.querySelector('.act-status-pill').addEventListener('click', function(){
+          var order = ['ok','behind','off'];
+          var idx = order.indexOf(act.status);
+          act.status = order[(idx+1) % order.length];
+          this.className = 'act-status-pill status-'+act.status;
+          this.textContent = ({ok:'On Track',behind:'Delayed',off:'Off Track'})[act.status];
+          renderRight(); scheduleSave();
+        });
+        left.querySelector('.add-marker-btn').addEventListener('click', function(){
+          var f = left.querySelector('.marker-form');
+          f.style.display = (f.style.display==='none') ? 'flex' : 'none';
+        });
+        left.querySelector('.mk-cancel').addEventListener('click', function(){ left.querySelector('.marker-form').style.display='none'; });
+        left.querySelector('.mk-add').addEventListener('click', function(){
+          var f = left.querySelector('.marker-form');
+          var d = f.querySelector('.mk-date').value || act.start;
+          var t = f.querySelector('.mk-type').value;
+          var lbl = f.querySelector('.mk-label').value.trim();
+          if (!act.markers) act.markers = [];
+          act.markers.push({ id:newId('mk'), date:d, type:t, label:lbl });
+          f.querySelector('.mk-label').value='';
+          f.style.display = 'none';
+          renderAll(); scheduleSave();
+        });
+        left.querySelectorAll('.mk-x').forEach(function(x){
+          x.addEventListener('click', function(){
+            var mkid = this.dataset.mkid;
+            act.markers = (act.markers||[]).filter(function(m){ return m.id !== mkid; });
+            renderAll(); scheduleSave();
+          });
+        });
+      });
+      renderRight();
+    }
+
+    function renderRight(){
+      var cols = buildColumns();
+      var headerRight = container.querySelector('.gantt-header-right');
+      headerRight.innerHTML = cols.map(function(c){
+        return '<div class="gridcol head" style="left:'+c.left+'%;width:'+c.width+'%"><div class="col-label" contenteditable="true" data-idx="'+cols.indexOf(c)+'">'+c.label+'</div></div>';
+      }).join('');
+      headerRight.querySelectorAll('.col-label').forEach(function(el){
+        el.addEventListener('input', function(){
+          if (!plan.colLabels) plan.colLabels = [];
+          plan.colLabels[+el.dataset.idx] = el.innerHTML;
+          scheduleSave();
+        });
+      });
+
+      container.querySelectorAll('.gantt-activity-rows .gantt-row.activity').forEach(function(rowEl){
+        var act = plan.activities.find(function(a){ return a.id === rowEl.dataset.id; });
+        if (!act) return;
+        var gridlines = rowEl.querySelector('.gridlines');
+        var barLayer = rowEl.querySelector('.bar-layer');
+        gridlines.innerHTML = cols.map(function(c){ return '<div class="gridcol" style="left:'+c.left+'%;width:'+c.width+'%"></div>'; }).join('');
+
+        var s = toDate(act.start), e = toDate(act.end);
+        var left = pctOf(s), width = Math.max(0, pctOf(e)-pctOf(s));
+        var barHtml;
+        if (act.start === act.end){
+          barHtml = '<div class="milestone status-'+act.status+'" style="left:'+left+'%" title="'+escAttr(act.name)+' \u2014 '+act.start+'"></div>';
+        } else {
+          barHtml = '<div class="gantt-bar status-'+act.status+'" style="left:'+left+'%;width:'+width+'%" title="'+escAttr(act.name)+' \u2014 '+act.start+' to '+act.end+'"></div>';
+        }
+        var markersHtml = (act.markers||[]).map(function(mk){
+          var mp = pctOf(toDate(mk.date));
+          var tip = (mk.type==='blocker'?'Blocker':'Delay') + ' \u2014 ' + mk.date + (mk.label ? ': '+mk.label : '');
+          return '<div class="marker-flag mk-'+mk.type+'" style="left:'+mp+'%" title="'+escAttr(tip)+'"></div>';
+        }).join('');
+        barLayer.innerHTML = barHtml + markersHtml;
+      });
+
+      var todayWrap = container.querySelector('.today-line');
+      var r = planRange();
+      var today = new Date(); today.setHours(0,0,0,0);
+      if (today >= r.start && today <= r.end){
+        var p = pctOf(today);
+        todayWrap.style.display = 'block';
+        todayWrap.style.left = 'calc('+LEFT_W+'px + (100% - '+LEFT_W+'px) * '+(p/100)+')';
+      } else {
+        todayWrap.style.display = 'none';
+      }
+    }
+
+    function addActivity(){
+      var r = planRange();
+      var start = toISO(r.start);
+      var newAct = { id:newId('a'), name:'New activity', start:start, end:start, status:'ok', markers:[] };
+      plan.activities.push(newAct);
+      expandedIds[newAct.id] = true;
+      renderAll(); scheduleSave();
+      var rows = container.querySelectorAll('.gantt-activity-rows .gantt-row.activity');
+      var lastRow = rows[rows.length-1];
+      if (lastRow){ var ni = lastRow.querySelector('.act-name'); ni.focus(); ni.select(); }
+    }
+    function addPeriod(){
+      var e = toDate(plan.endDate);
+      var next = (plan.granularity==='monthly') ? new Date(e.getFullYear(), e.getMonth()+1, e.getDate()) : addDays(e,7);
+      plan.endDate = toISO(next);
+      container.querySelector('.g-plan-end').value = plan.endDate;
+      renderRight(); scheduleSave();
+    }
+    function removePeriod(){
+      var s = toDate(plan.startDate), e = toDate(plan.endDate);
+      var prev = (plan.granularity==='monthly') ? new Date(e.getFullYear(), e.getMonth()-1, e.getDate()) : addDays(e,-7);
+      if (prev <= s) return;
+      plan.endDate = toISO(prev);
+      container.querySelector('.g-plan-end').value = plan.endDate;
+      renderRight(); scheduleSave();
+    }
+
+    container.querySelector('[data-act="addActivity"]').addEventListener('click', addActivity);
+    container.querySelector('[data-act="addPeriod"]').addEventListener('click', addPeriod);
+    container.querySelector('[data-act="removePeriod"]').addEventListener('click', removePeriod);
+    container.querySelector('.g-plan-start').addEventListener('change', function(e){ plan.startDate = e.target.value; renderRight(); scheduleSave(); });
+    container.querySelector('.g-plan-end').addEventListener('change', function(e){ plan.endDate = e.target.value; renderRight(); scheduleSave(); });
+    container.querySelector('.g-granularity').addEventListener('change', function(e){ plan.granularity = e.target.value; renderRight(); scheduleSave(); });
+    container.querySelector('.g-plan-title').addEventListener('input', function(e){ plan.title = e.target.textContent; scheduleSave(); });
+
+    function setPlan(p){ plan = p; syncControls(); renderAll(); }
+    function syncControls(){
+      container.querySelector('.g-plan-title').textContent = plan.title || '';
+      container.querySelector('.g-plan-start').value = plan.startDate;
+      container.querySelector('.g-plan-end').value = plan.endDate;
+      container.querySelector('.g-granularity').value = plan.granularity;
+    }
+
+    syncControls();
+    renderAll();
+
+    GANTT[key] = { getPlan: function(){ return plan; }, setPlan: setPlan };
+  }
+
+  // ================= Auto-save (localStorage) =================
+  var saveTimer = null;
+  function scheduleSave(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      try{
+        localStorage.setItem(LS_KEY, JSON.stringify(collectState()));
+        showStatus('\u2713 Changes saved');
+      }catch(e){
+        showStatus('\u26A0 Auto-save failed: ' + e.message, true);
+      }
+    }, 700);
+  }
+  function showStatus(msg, err){
+    var st = document.getElementById('tbStatus');
+    if (!st) return;
+    st.className = 'tb-status ' + (err ? 'err' : 'ok');
+    st.textContent = msg;
+    clearTimeout(st._t);
+    st._t = setTimeout(function(){
+      st.className = 'tb-status';
+      st.textContent = 'Auto-save on \u2014 every edit is saved in your browser automatically.';
+    }, 2800);
+  }
+
+  function wireAutosaveAll(){
+    document.querySelectorAll('[contenteditable="true"]').forEach(function(el){
+      if (el.closest('.risk-table') || el.closest('.gantt-instance')) return; // handled separately
+      if (el._wired) return; el._wired = true;
+      el.addEventListener('input', scheduleSave);
+      el.addEventListener('blur', scheduleSave);
+      if (el.closest('.grid .card')){
+        el.addEventListener('input', recount);
+        el.addEventListener('blur', recount);
+      }
+    });
+  }
+
+  // ================= Collect / apply full board state =================
+  function collectState(){
+    var s = { v:2, free:[], cards:{}, risks:{}, gantt:{}, registerMeta:{ nextSno: REGISTER_NEXT_SNO } };
+    document.querySelectorAll('[contenteditable="true"]').forEach(function(el){
+      if (el.closest('.grid .card') || el.closest('.risk-table') || el.closest('.gantt-instance')) return;
+      s.free.push(el.innerHTML);
+    });
+    document.querySelectorAll('.grid .card').forEach(function(c){
+      var uidEl = c.querySelector('.uid');
+      var uid = uidEl ? uidEl.textContent.trim() : '';
+      if (uid) s.cards[uid] = { cls: c.className, html: c.innerHTML };
+    });
+    UC_LIST.concat(['REGISTER']).forEach(function(uid){
+      var tbody = document.getElementById('risk-' + uid);
+      s.risks[uid] = tbody ? tbody.innerHTML : '';
+    });
+    Object.keys(GANTT).forEach(function(k){ s.gantt[k] = GANTT[k].getPlan(); });
+    return s;
+  }
+
+  function applyState(s){
+    if (!s) return false;
+    var i = 0;
+    document.querySelectorAll('[contenteditable="true"]').forEach(function(el){
+      if (el.closest('.grid .card') || el.closest('.risk-table') || el.closest('.gantt-instance')) return;
+      if (s.free && s.free[i] !== undefined) el.innerHTML = s.free[i];
+      i++;
+    });
+    document.querySelectorAll('.grid .card').forEach(function(c){
+      var uidEl = c.querySelector('.uid');
+      var uid = uidEl ? uidEl.textContent.trim() : '';
+      var d = s.cards && s.cards[uid];
+      if (d){ c.className = d.cls; c.innerHTML = d.html; }
+    });
+    UC_LIST.concat(['REGISTER']).forEach(function(uid){
+      var tbody = document.getElementById('risk-' + uid);
+      if (tbody && s.risks && s.risks[uid] !== undefined) tbody.innerHTML = s.risks[uid];
+    });
+    if (s.registerMeta && s.registerMeta.nextSno) REGISTER_NEXT_SNO = s.registerMeta.nextSno;
+    if (s.gantt){
+      Object.keys(s.gantt).forEach(function(k){
+        if (GANTT[k]) GANTT[k].setPlan(s.gantt[k]);
+      });
+    }
+    wireAutosaveAll();
+    wireAllRiskTables();
+    recount();
+    syncAllStatuses();
+    return true;
+  }
+
+  // ================= Export to PDF / PNG =================
+  function getActivePage(){
+    var pages = document.querySelectorAll('.tabpage');
+    for (var i=0;i<pages.length;i++){
+      if (pages[i].style.display !== 'none') return pages[i];
+    }
+    return document.getElementById('tab-projectsummary');
+  }
+  function withExportMode(fn){
+    document.querySelectorAll('[data-noexport]').forEach(function(el){ el.style.display='none'; });
+    var page = getActivePage();
+    html2canvas(page, {scale:2, backgroundColor:'#ffffff', useCORS:true}).then(function(canvas){
+      document.querySelectorAll('[data-noexport]').forEach(function(el){ el.style.display=''; });
+      fn(canvas);
+    }).catch(function(err){
+      document.querySelectorAll('[data-noexport]').forEach(function(el){ el.style.display=''; });
+      alert('Export failed: ' + err.message);
+    });
+  }
+  function exportPNG(){
+    withExportMode(function(canvas){
+      var a = document.createElement('a');
+      a.download = 'CETIN_Track1_Progress.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    });
+  }
+  function exportPDF(){
+    withExportMode(function(canvas){
+      var jsPDF = window.jspdf.jsPDF;
+      var w = canvas.width, h = canvas.height;
+      var pdf = new jsPDF({orientation: w>=h ? 'landscape':'portrait', unit:'pt', format:[w*0.5, h*0.5]});
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.95), 'JPEG', 0, 0, w*0.5, h*0.5);
+      pdf.save('CETIN_Track1_Progress.pdf');
+    });
+  }
+  window.exportPNG = exportPNG;
+  window.exportPDF = exportPDF;
+
+  // ================= Save as standalone HTML (bakes current state in) =================
+  function saveAsHTML(){
+    var clone = document.documentElement.cloneNode(true);
+    var liveCE = [];
+    document.querySelectorAll('[contenteditable]').forEach(function(el){
+      if (el.closest('.gantt-instance')) return;
+      liveCE.push(el);
+    });
+    var cloneCE = [];
+    clone.querySelectorAll('[contenteditable]').forEach(function(el){
+      if (el.closest('.gantt-instance')) return;
+      cloneCE.push(el);
+    });
+    liveCE.forEach(function(el,i){ if (cloneCE[i]) cloneCE[i].innerHTML = el.innerHTML; });
+
+    document.querySelectorAll('.grid .card .stage-track .dot').forEach(function(d,i){
+      var cd = clone.querySelectorAll('.grid .card .stage-track .dot')[i];
+      if (cd) cd.className = d.className;
+    });
+    document.querySelectorAll('.grid .card').forEach(function(c,i){
+      var cc = clone.querySelectorAll('.grid .card')[i];
+      if (cc) cc.className = c.className;
+    });
+    document.querySelectorAll('.cstat').forEach(function(el,i){
+      var cel = clone.querySelectorAll('.cstat')[i];
+      if (cel){ cel.className = el.className; cel.textContent = el.textContent; }
+    });
+    UC_LIST.concat(['REGISTER']).forEach(function(uid){
+      var lt = document.getElementById('risk-' + uid);
+      var ct = clone.querySelector('#risk-' + uid);
+      if (lt && ct) ct.innerHTML = lt.innerHTML;
+    });
+    // bake each gantt instance's data island
+    document.querySelectorAll('.gantt-instance').forEach(function(g){
+      var key = g.dataset.key;
+      var cg = clone.querySelector('.gantt-instance[data-key="'+key+'"]');
+      if (cg && GANTT[key]){
+        var dataEl = cg.querySelector('.gantt-data');
+        if (dataEl) dataEl.textContent = JSON.stringify(GANTT[key].getPlan());
+      }
+    });
+    var regMetaEl = clone.querySelector('#register-meta-data');
+    if (regMetaEl) regMetaEl.textContent = JSON.stringify({nextSno:REGISTER_NEXT_SNO});
+
+    // open on Use Case Summary > Overview by default when the file is (re)opened
+    clone.querySelectorAll('.tabpage').forEach(function(p){ p.style.display = (p.id==='tab-projectsummary') ? 'block' : 'none'; });
+    clone.querySelectorAll('.tabbar.level1 .tab').forEach(function(t){ t.classList.toggle('active', /showTab\('projectsummary'/.test(t.getAttribute('onclick')||'')); });
+    clone.querySelectorAll('#tab-projectsummary .uc-subpage').forEach(function(p){ p.style.display = (p.id==='l2-overview') ? 'block' : 'none'; });
+    clone.querySelectorAll('.tabbar.level2 .tab').forEach(function(t){ t.classList.toggle('active', /showUCTab\('overview'/.test(t.getAttribute('onclick')||'')); });
+
+    var out = '<!DOCTYPE html>\n' + clone.outerHTML;
+    var blob = new Blob([out], {type:'text/html;charset=utf-8'});
+    var a = document.createElement('a');
+    var dt = new Date().toISOString().slice(0,10);
+    a.download = 'CETIN_Track1_Progress_Dashboard_' + dt + '.html';
+    a.href = URL.createObjectURL(blob);
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showStatus('\u2713 HTML downloaded \u2014 open in any browser, all edits baked in.');
+  }
+  window.saveAsHTML = saveAsHTML;
+
+  // ================= Init =================
+  (function initBoard(){
+    // Boot every Gantt instance from its baked data-island first (as the un-edited defaults)
+    document.querySelectorAll('.gantt-instance').forEach(function(g){
+      var key = g.dataset.key;
+      var dataEl = g.querySelector('.gantt-data');
+      var defaultData = { title:'High-Level Plan', startDate:'2026-09-28', endDate:'2026-11-08', granularity:'weekly', activities:[] };
+      try{ defaultData = JSON.parse(dataEl.textContent); }catch(e){}
+      initGantt(key, g, defaultData);
+    });
+    try{
+      var regMetaEl = document.getElementById('register-meta-data');
+      if (regMetaEl){ var rm = JSON.parse(regMetaEl.textContent); REGISTER_NEXT_SNO = rm.nextSno || 1; }
+    }catch(e){}
+
+    try{
+      var raw = localStorage.getItem(LS_KEY);
+      if (raw){
+        var parsed = JSON.parse(raw);
+        if (applyState(parsed)){
+          showStatus('\u2713 Last session restored automatically.');
+          return;
+        }
+      }
+      wireAutosaveAll();
+      wireAllRiskTables();
+      recount();
+      syncAllStatuses();
+    }catch(e){
+      console.warn('initBoard', e);
+      wireAutosaveAll();
+      wireAllRiskTables();
+      recount();
+    }
+  })();
+
+</script>
+
+</body></html>
